@@ -1,0 +1,48 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgresservice
+spec:
+  selector:
+    app: postgresapp
+  ports:
+    - protocol: "TCP"
+      # Port accessible inside cluster
+      port: 8085
+      # Port to forward to inside the pod
+      targetPort: 5432
+      # Port accessible outside cluster
+      nodePort: 30005
+  type: LoadBalancer
+  externalIPs:
+    -  10.102.151.78
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: postgresapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: postgresapp
+  template:
+    metadata:
+      name: postgresapp
+      labels:
+        app: postgresapp
+    spec:
+      containers:
+        - name: postgresapp
+          image: postgres
+          ports:
+            - containerPort: 5432
+          env:
+          - name: POSTGRES_DB
+            value: postgresdb
+          - name: POSTGRES_USER
+            value: user
+          - name: POSTGRES_PASSWORD
+            value: password

@@ -1,0 +1,41 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: myredisservice
+spec:
+  selector:
+    app: myredisapp
+  ports:
+    - protocol: "TCP"
+      # Port accessible inside cluster
+      port: 8084
+      # Port to forward to inside the pod
+      targetPort: 6379
+      # Port accessible outside cluster
+      nodePort: 30004
+  type: LoadBalancer
+  externalIPs:
+    - 10.102.151.77
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: myredisapp
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: myredisapp
+  template:
+    metadata:
+      name: myredisapp
+      labels:
+        app: myredisapp
+    spec:
+      containers:
+        - name: myredisapp
+          image: linhsonit/myredis
+          ports:
+            - containerPort: 6379

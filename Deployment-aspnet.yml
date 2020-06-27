@@ -1,0 +1,39 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: aspnetservice
+spec:
+  selector:
+    app: aspnetapp
+  ports:
+    - protocol: "TCP"
+      # Port accessible inside cluster
+      port: 8083
+      # Port to forward to inside the pod
+      targetPort: 83
+      # Port accessible outside cluster
+      nodePort: 30003
+  type: LoadBalancer
+ 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aspnetapp
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+        app: aspnetapp
+  template:
+    metadata:
+      name: aspnetapp
+      labels:
+        app: aspnetapp
+    spec:
+      containers:
+        - name: aspnetapp
+          image: linhsonit/aspnetapp:v1.0.0
+          ports:
+            - containerPort: 83
